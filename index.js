@@ -94,7 +94,7 @@ app.get("/metal", async (req, res) => {
                 console.log(err);
                 let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
     
-                 if (randomRes) toReturn = randomRes[0] else toReturn = err;
+                 if (randomRes) { toReturn = randomRes[0] } else toReturn = err;
                 return toReturn;
             }
         } else {
