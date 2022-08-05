@@ -66,38 +66,43 @@ app.get("/currencies", async (req, res) => {
 // GOLD/SILVER TOP BAR
 
 app.get("/metal", async (req, res) => {
-    const apiKey = config.topBarMetalRateAPIkey;
-    let base = req.query.base;
-    if (!base) {
-        base = "EUR";
-    }
-
-    let toReturn;
-    let latestData = await metalModel.find({ base: base }).sort({ date: -1 }).limit(1);
-    if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-6, "hours")) {
-        const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
-
-        const metal = new metalModel({
-            base: data.data.base,
-            gold: data.data.rates.XAU,
-            silver: data.data.rates.XAG,
-            date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
-        });
-
-        toReturn = metal;
-        try {
-            await metal.save();
-        } catch (err) {
-            console.log(err);
-            return err;
+    try{
+        const apiKey = config.topBarMetalRateAPIkey;
+        let base = req.query.base;
+        if (!base) {
+            base = "EUR";
         }
-    } else {
-        let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
-
-        if (randomRes) toReturn = randomRes[0];
+    
+        let toReturn;
+        let latestData = await metalModel.find({ base: base }).sort({ date: -1 }).limit(1);
+        if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-6, "hours")) {
+            const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
+    
+            const metal = new metalModel({
+                base: data.data.base,
+                gold: data.data.rates.XAU,
+                silver: data.data.rates.XAG,
+                date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
+            });
+    
+            toReturn = metal;
+            try {
+                await metal.save();
+            } catch (err) {
+                console.log(err);
+                return err;
+            }
+        } else {
+            let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
+    
+            if (randomRes) toReturn = randomRes[0];
+        }
+    
+        res.send(toReturn);
     }
-
-    res.send(toReturn);
+    catch (ex) {
+        console.log(ex);
+    }
 });
 
 //CURRENCY EXCHANGE
