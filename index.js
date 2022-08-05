@@ -77,18 +77,20 @@ app.get("/metal", async (req, res) => {
         let latestData = await metalModel.find({ base: base }).sort({ date: -1 }).limit(1);
         if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-6, "hours")) {
             const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
-    
-            const metal = new metalModel({
-                base: data.data.base,
-                gold: data.data.rates.XAU,
-                silver: data.data.rates.XAG,
-                date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
-            });
-    
-            toReturn = metal;
+            
+            
             try {
+                const metal = new metalModel({
+                    base: data.data.base,
+                    gold: data.data.rates.XAU,
+                    silver: data.data.rates.XAG,
+                    date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
+                });
+        
+                toReturn = metal;
                 await metal.save();
             } catch (err) {
+                console.log(data);
                 console.log(err);
                 return err;
             }
