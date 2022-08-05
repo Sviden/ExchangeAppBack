@@ -79,31 +79,31 @@ app.get("/metal", async (req, res) => {
             const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
 
             if (data.success)
-        {
-            try {
-                const metal = new metalModel({
-                    base: data.data.base,
-                    gold: data.data.rates.XAU,
-                    silver: data.data.rates.XAG,
-                    date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
-                });
+            {
+                try {
+                    const metal = new metalModel({
+                        base: data.data.base,
+                        gold: data.data.rates.XAU,
+                        silver: data.data.rates.XAG,
+                        date: new Date(new Date(moment.unix(data.data.timestamp)).toUTCString()),
+                    });
+            
+                    toReturn = metal;
+                    await metal.save();
+                } catch (err) {
+                    console.log(data);
+                    console.log(err);
+                    let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
         
-                toReturn = metal;
-                await metal.save();
-            } catch (err) {
-                console.log(data);
-                console.log(err);
-                let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
-    
-                 if (randomRes) { toReturn = randomRes[0] } else toReturn = err;
-                return toReturn;
+                    if (randomRes) { toReturn = randomRes[0] } else toReturn = err;
+                    return toReturn;
+                }
             }
-        }
-        else
-        {
-            let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
-            if (randomRes) toReturn = randomRes[0];
-        }
+            else
+            {
+                let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
+                if (randomRes) toReturn = randomRes[0];
+            }
         } else {
             let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
     
