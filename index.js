@@ -75,10 +75,11 @@ app.get("/metal", async (req, res) => {
     
         let toReturn;
         let latestData = await metalModel.find({ base: base }).sort({ date: -1 }).limit(1);
-        if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-6, "hours")) {
+        if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-1, "days")) {
             const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
-            
-            
+
+            if (data.success)
+        {
             try {
                 const metal = new metalModel({
                     base: data.data.base,
@@ -97,6 +98,12 @@ app.get("/metal", async (req, res) => {
                  if (randomRes) { toReturn = randomRes[0] } else toReturn = err;
                 return toReturn;
             }
+        }
+        else
+        {
+            let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
+            if (randomRes) toReturn = randomRes[0];
+        }
         } else {
             let randomRes = await metalModel.aggregate().match({ base: base }).sample(1);
     
@@ -158,7 +165,7 @@ app.get("/chartdata", async (req, res) => {
 
     let toReturn;
 
-    if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(Date.now()).add(-1, "days")) {
+    if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-1, "days")) {
         const data = await axios.get(theCall);
         if (data.success)
         {
@@ -206,7 +213,7 @@ app.get("/goldsilverprice", async (req, res) => {
 
     let latestData = await goldPriceModel.find({ metal: metal, currency: currency }).sort({ date: -1 }).limit(1);
 
-    if ((metal && currency && !latestData) || latestData.length === 0 || moment(latestData[0].date) < moment(Date.now()).add(-1, "days")) {
+    if ((metal && currency && !latestData) || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-1, "days")) {
         const data = await axios.get(`https://www.goldapi.io/api/${metal}/${currency}`, requestOptions);
 
         const price = goldPriceModel({
