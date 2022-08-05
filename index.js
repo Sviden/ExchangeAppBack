@@ -160,6 +160,8 @@ app.get("/chartdata", async (req, res) => {
 
     if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(Date.now()).add(-1, "days")) {
         const data = await axios.get(theCall);
+        if (data.success)
+        {
         const chart = new chartModel({
             base: data.data.base,
             startDate: startDate,
@@ -174,7 +176,12 @@ app.get("/chartdata", async (req, res) => {
             console.log(err);
             return err;
         }
+    
         toReturn = chart;
+         }
+         else{
+            toReturn = latestData[0];
+         }
     } else {
         toReturn = latestData[0];
     }
