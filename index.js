@@ -78,7 +78,7 @@ app.get("/metal", async (req, res) => {
         if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-1, "days")) {
             const data = await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
 
-            if (data.success)
+            if (data.success || data.data && data.data.success)
             {
                 try {
                     const metal = new metalModel({
@@ -167,7 +167,8 @@ app.get("/chartdata", async (req, res) => {
 
     if (!latestData || latestData.length === 0 || moment(latestData[0].date) < moment(new Date().toUTCString()).add(-1, "days")) {
         const data = await axios.get(theCall);
-        if (data.success)
+
+        if (data.success ||  data.data && data.data.success)
         {
         const chart = new chartModel({
             base: data.data.base,
