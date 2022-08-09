@@ -187,6 +187,7 @@ app.get("/chartdata", async (req, res) => {
         toReturn = chart;
          }
          else{
+            console.log(data)
             toReturn = latestData[0];
          }
     } else {
