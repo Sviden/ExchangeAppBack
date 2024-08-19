@@ -79,7 +79,10 @@ function generateMockLatestResponse(
   symbols = ["XAU", "XAG", "XPD"]
 ) {
   function randomRateValue() {
-    return (0.0001 + Math.random() * (0.001 - 0.0001)).toFixed(9);
+    const min = 0.0002;
+    const max = 0.01;
+    const result = min + Math.random() * (max - min);
+    return result.toFixed(4);
   }
 
   const rates = {};
