@@ -74,6 +74,40 @@ app.get("/currencies", async (req, res) => {
 });
 
 // GOLD/SILVER TOP BAR
+function generateMockLatestResponse(
+  base = "USD",
+  symbols = ["XAU", "XAG", "XPD"]
+) {
+  function randomRateValue() {
+    return (0.0001 + Math.random() * (0.001 - 0.0001)).toFixed(9);
+  }
+
+  const rates = {};
+  symbols.forEach((symbol) => {
+    rates[symbol] = parseFloat(randomRateValue());
+  });
+
+  return {
+    data: {
+      success: true,
+      timestamp: Math.floor(Date.now() / 1000), // Current timestamp
+      base: base,
+      date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
+      rates: rates,
+    },
+    status: 200,
+    statusText: "OK",
+    headers: {
+      "content-type": "application/json",
+    },
+    config: {},
+    request: {},
+  };
+}
+
+// Example usage:
+const mockResponse = generateMockLatestResponse("USD", ["XAU", "XAG", "XPD"]);
+console.log(JSON.stringify(mockResponse, null, 2));
 
 app.get("/metal", async (req, res) => {
   try {
@@ -94,9 +128,10 @@ app.get("/metal", async (req, res) => {
       moment(latestData[0].date) <
         moment(new Date().toUTCString()).add(-1, "days")
     ) {
-      const data = await axios.get(
-        `https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`
-      );
+      const data = generateMockLatestResponse(base, ["XAU", "XAG"]); //await axios.get(`https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`);
+      // await axios.get(
+      //   `https://metals-api.com/api/latest?access_key=${apiKey}&base=${base}&symbols=XAU,XAG`
+      // );
 
       if (data.success || (data.data && data.data.success)) {
         try {
@@ -175,7 +210,7 @@ app.get("/symbols", async (req, res) => {
     symbols: data.data.symbols,
   });
   try {
-    symbols.save();
+    await symbols.save();
   } catch (err) {
     console.log(err);
     return err;
@@ -239,7 +274,7 @@ app.get("/chartdata", async (req, res) => {
   const endDate = moment().subtract(1, "days").format("YYYY-MM-DD");
   const startDate = moment().subtract(8, "days").format("YYYY-MM-DD");
   const apiKey = config.chartDataAPIkey;
-  const theCall = `https://metals-api.com/api/timeseries?access_key=${apiKey}&start_date=${startDate}&end_date=${endDate}&base=XAG&symbols=XAU`;
+  //const theCall = `https://metals-api.com/api/timeseries?access_key=${apiKey}&start_date=${startDate}&end_date=${endDate}&base=XAG&symbols=XAU`;
 
   let latestData = await chartModel.find({}).sort({ date: -1 }).limit(1);
 
