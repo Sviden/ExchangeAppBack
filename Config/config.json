@@ -1,5 +1,5 @@
 {
-    "mongoDbConnection": "mongodb+srv://sviden:wsa123456@jenyatest.reworeg.mongodb.net/?retryWrites=true&w=majority",
+    "mongoDbConnection": "mongodb+srv://website:u4y1YshQGsIcKHGm@jenyatest.reworeg.mongodb.net/?retryWrites=true&w=majority",
     "topBarCurrRateAPIkey": "9SF6dsnELgIvPMqWEUuCRXxE4tqr3L3G",
     "topBarMetalRateAPIkey": "qfrymr4kh1813he926aa29dcns347ez4j835e97qb1h0txops3l2blc59t63",
     "conversionAndSymbolsAPIkey": "oT0HqVBM52bJBRZeJthi2hAydR8MYmeS",
