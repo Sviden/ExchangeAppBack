@@ -78,16 +78,17 @@ function generateMockLatestResponse(
   base = "USD",
   symbols = ["XAU", "XAG", "XPD"]
 ) {
-  function randomRateValue() {
-    const min = 0.0002;
-    const max = 0.01;
-    const result = min + Math.random() * (max - min);
-    return result.toFixed(4);
+  function randomRateValue(symbol) {
+    if (symbol === "XAG") {
+      return (0.01 + Math.random() * (4 - 0.01)).toFixed(4); // XAG always above 0.01
+    } else {
+      return (0.0001 + Math.random() * (0.001 - 0.0001)).toFixed(4); // Default range for others
+    }
   }
 
   const rates = {};
   symbols.forEach((symbol) => {
-    rates[symbol] = parseFloat(randomRateValue());
+    rates[symbol] = parseFloat(randomRateValue(symbol));
   });
 
   return {
@@ -107,10 +108,6 @@ function generateMockLatestResponse(
     request: {},
   };
 }
-
-// Example usage:
-const mockResponse = generateMockLatestResponse("USD", ["XAU", "XAG", "XPD"]);
-console.log(JSON.stringify(mockResponse, null, 2));
 
 app.get("/metal", async (req, res) => {
   try {
